@@ -129,7 +129,6 @@ contract TaskContract {
 
     // Get all tasks for a user on a specific date
     // Function to get all tasks for all users on a specific date
-    // Get all tasks for all users on a specific date
     function getAllTasksForDate(
         uint _date
     ) public view returns (Task[] memory) {

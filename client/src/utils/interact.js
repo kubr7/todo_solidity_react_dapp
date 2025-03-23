@@ -46,50 +46,6 @@ export const connectWallet = async () => {
     }
 };
 
-
-
-
-// let isConnecting = false;
-
-// export const connectWallet = async () => {
-//     if (isConnecting) return null; // Prevent multiple simultaneous requests
-//     isConnecting = true;
-
-//     try {
-//         const { ethereum } = window;
-//         if (!ethereum) {
-//             console.log('Metamask not detected');
-//             return null;
-//         }
-
-//         let chainId = await ethereum.request({ method: 'eth_chainId' });
-//         console.log('Connected to chain:', chainId);
-
-//         const sepoliaChainId = '0xaa36a7';
-//         if (chainId !== sepoliaChainId) {
-//             alert('You are not connected to the Sepolia Testnet!');
-//             return null;
-//         }
-
-//         // Check if already connected
-//         const existingAccounts = await ethereum.request({ method: 'eth_accounts' });
-//         if (existingAccounts.length > 0) {
-//             console.log('Already connected:', existingAccounts[0]);
-//             return existingAccounts[0];
-//         }
-
-//         // Request new connection
-//         const accounts = await ethereum.request({ method: 'eth_requestAccounts' });
-//         console.log('Connected account:', accounts[0]);
-//         return accounts[0];
-//     } catch (error) {
-//         console.log('Error connecting to MetaMask:', error);
-//         return null;
-//     } finally {
-//         isConnecting = false; // Reset flag
-//     }
-// };
-
 // Create a new task for the user.
 export const createTask = async (userAddress, description, selectedDate) => {
     if (!contract) await initContract();

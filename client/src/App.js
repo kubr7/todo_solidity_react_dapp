@@ -413,21 +413,6 @@ function App() {
                           <PendingIcon
                             sx={{ color: "#7D0A0A", fontSize: "18px" }}
                           />
-                          {/* <Button
-                            variant="outlined"
-                            color="primary"
-                            onClick={() => handleUpdateTask(index)}
-                            endIcon={
-                              <AssignmentTurnedInIcon
-                                sx={{ fontSize: "18px" }}
-                              />
-                            }
-                            sx={{
-                              fontSize: "12px",
-                            }}
-                          >
-                            Mark as Completed
-                          </Button> */}
                           {task.creator === task.userAddress && (
                             <Button
                               variant="outlined"
@@ -512,15 +497,6 @@ function convertToInputFormat(dateStr) {
 }
 
 // Convert DDMMYYYY to "DD-MM-YYYY" for display
-// function formatDisplayDate(dateStr) {
-//   if (!dateStr || dateStr.length !== 8) return "";
-//   const day = dateStr.substring(0, 2);
-//   const month = dateStr.substring(2, 4);
-//   const year = dateStr.substring(4, 8);
-//   return `${day}-${month}-${year}`; // DD-MM-YYYY
-// }
-
-
 function formatDisplayDate(dateStr) {
   if (!dateStr || dateStr.length !== 8) return "";
 
