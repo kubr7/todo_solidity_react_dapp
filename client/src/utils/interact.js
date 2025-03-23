@@ -11,6 +11,7 @@ export const initContract = async () => {
         const ethProvider = new BrowserProvider(window.ethereum);
         const signer = await ethProvider.getSigner();
         contract = new Contract(TaskContractAddress, TaskAbi.abi, signer);
+        console.log("Available contract functions:", Object.keys(contract));
         return contract;
     } else {
         console.log("Ethereum object not found. Install Metamask.");
@@ -37,7 +38,7 @@ export const connectWallet = async () => {
         }
 
         const accounts = await ethereum.request({ method: 'eth_requestAccounts' });
-        console.log('Found account:', accounts[0]);
+        console.log('Connected account:', accounts[0]);
         return accounts[0];
     } catch (error) {
         console.log('Error connecting to metamask:', error);
@@ -45,33 +46,58 @@ export const connectWallet = async () => {
     }
 };
 
-// Fetch all tasks for a given user.
-export const fetchTasks = async (userAddress) => {
-    if (!contract) await initContract();
 
-    try {
-        const tasksList = await contract.getAllTasks(userAddress);
-        console.log("Fetched tasks:", tasksList);
 
-        return tasksList.map(task => ({
-            description: task.description,
-            status: Number(task.status),
-            creator: task.creator
-        }));
-    } catch (error) {
-        console.error("Error fetching tasks:", error);
-        return [];
-    }
-};
+
+// let isConnecting = false;
+
+// export const connectWallet = async () => {
+//     if (isConnecting) return null; // Prevent multiple simultaneous requests
+//     isConnecting = true;
+
+//     try {
+//         const { ethereum } = window;
+//         if (!ethereum) {
+//             console.log('Metamask not detected');
+//             return null;
+//         }
+
+//         let chainId = await ethereum.request({ method: 'eth_chainId' });
+//         console.log('Connected to chain:', chainId);
+
+//         const sepoliaChainId = '0xaa36a7';
+//         if (chainId !== sepoliaChainId) {
+//             alert('You are not connected to the Sepolia Testnet!');
+//             return null;
+//         }
+
+//         // Check if already connected
+//         const existingAccounts = await ethereum.request({ method: 'eth_accounts' });
+//         if (existingAccounts.length > 0) {
+//             console.log('Already connected:', existingAccounts[0]);
+//             return existingAccounts[0];
+//         }
+
+//         // Request new connection
+//         const accounts = await ethereum.request({ method: 'eth_requestAccounts' });
+//         console.log('Connected account:', accounts[0]);
+//         return accounts[0];
+//     } catch (error) {
+//         console.log('Error connecting to MetaMask:', error);
+//         return null;
+//     } finally {
+//         isConnecting = false; // Reset flag
+//     }
+// };
 
 // Create a new task for the user.
-export const createTask = async (userAddress, description) => {
+export const createTask = async (userAddress, description, selectedDate) => {
     if (!contract) await initContract();
 
     try {
-        const txn = await contract.createTask(userAddress, description);
+        const txn = await contract.createTask(userAddress, description, selectedDate);
         await txn.wait();
-        console.log("Task created successfully.");
+        console.log(userAddress);
         return true;
     } catch (error) {
         console.error("Error creating task:", error);
@@ -79,12 +105,42 @@ export const createTask = async (userAddress, description) => {
     }
 };
 
+
+export const createTaskForUser = async (targetUserAddress, description, selectedDate) => {
+    if (!contract) await initContract();
+
+    if (!targetUserAddress || targetUserAddress.length !== 42) {
+        console.error("Invalid user address");
+        return false;
+    }
+
+    try {
+        console.log(`Assigning task to ${targetUserAddress} on ${selectedDate}`);
+        const txn = await contract.createTaskForUser(targetUserAddress, description, selectedDate);
+        const receipt = await txn.wait();
+
+        if (receipt.status === 1) {
+            console.log(`Task successfully assigned to ${targetUserAddress}`);
+            console.log(`Task Description: ${description}`);
+            console.log(targetUserAddress);
+            return true;
+        } else {
+            console.error("Transaction failed.");
+            return false;
+        }
+    } catch (error) {
+        console.error("Error assigning task:", error);
+        return false;
+    }
+};
+
+
 // Update task status.
-export const updateTask = async (index, status) => {
+export const updateTask = async (index, status, selectedDate) => {
     if (!contract) await initContract();
 
     try {
-        const txn = await contract.updateTask(index, status);
+        const txn = await contract.updateTask(index, status, selectedDate);
         await txn.wait();
         console.log("Task updated successfully.");
         return true;
@@ -95,32 +151,51 @@ export const updateTask = async (index, status) => {
 };
 
 
-// Fetch filtered tasks by status (0 = Pending, 1 = Completed)
-export const filteredTasks = async (userAddress, status) => {
+// Fetch tasks based on status (Pending, Completed, All)
+export const getTasksByStatus = async (userAddress, selectedDate, status) => {
     if (!contract) await initContract();
 
     try {
         let tasksList;
-        if (status === 0) {
-            tasksList = await contract.getPendingTasks(userAddress);
-        } else if (status === 1) {
-            tasksList = await contract.getCompletedTasks(userAddress);
-        } else {
-            tasksList = await contract.getAllTasks(userAddress);
-        }
 
-        console.log("Filtered tasks:", tasksList);
+        if (status === 0) {
+            tasksList = await contract.getPendingTasks(userAddress, selectedDate);
+        } else if (status === 1) {
+            tasksList = await contract.getCompletedTasks(userAddress, selectedDate);
+        } else {
+            tasksList = await contract.getAllTasks(userAddress, selectedDate);
+        }
 
         const formattedTasks = tasksList.map(task => ({
             description: task.description,
-            status: Number(task.status),  // Convert from BigNumber if necessary
-            creator: task.creator
+            status: Number(task.status),
+            creator: task.creator,
+            userAddress: task.assignedTo || task.creator
         }));
 
-        console.log("Formatted Filtered Tasks:", formattedTasks);
+        console.log(`Tasks for ${userAddress} on ${selectedDate}:`, formattedTasks);
         return formattedTasks;
     } catch (error) {
-        console.log("Error fetching filtered tasks:", error);
+        console.error("Error fetching tasks:", error);
         return [];
     }
 };
+
+export const getAllTasksForDate = async (selectedDate) => {
+    if (!contract) await initContract();
+
+    try {
+        const allTasks = await contract.getAllTasksForDate(selectedDate);
+
+        return allTasks.map(task => ({
+            description: task.description,
+            status: Number(task.status),
+            creator: task.creator,
+            userAddress: task.assignedTo || task.creator
+        }));
+    } catch (error) {
+        console.error("Error fetching all tasks for date:", error);
+        return [];
+    }
+};
+
