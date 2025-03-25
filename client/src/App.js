@@ -1,6 +1,7 @@
 // src/app.js
 
 import React, { useState, useEffect } from "react";
+import { BrowserRouter as Router, Routes, Route, useNavigate } from "react-router-dom";
 import {
   TextField,
   Button,
@@ -22,13 +23,15 @@ import {
   createTaskForUser,
   getTasksByStatus,
   getAllTasksForDate,
+  fetchTasksByAddress
 } from "./utils/interact";
 import "./App.css";
+import UsersList from './components/UsersList';
 import { toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import { ToastContainer } from "react-toastify";
 
-function App() {
+function Home() {
   const [tasks, setTasks] = useState([]);
   const [taskType, setTaskType] = useState("self");
   const [input, setInput] = useState("");
@@ -38,6 +41,11 @@ function App() {
   const [targetUser, setTargetUser] = useState("");
   const [targetTaskDescription, setTargetTaskDescription] = useState("");
   const [selectedDate, setSelectedDate] = useState(getTodayDate());
+  const navigate = useNavigate();
+  const [searchAddress, setSearchAddress] = useState("");
+  const [searchedTasks, setSearchedTasks] = useState([]);
+  const [isSearching, setIsSearching] = useState(false);
+
 
   useEffect(() => {
     const initialize = async () => {
@@ -65,6 +73,8 @@ function App() {
         tasksList = await getTasksByStatus(userAddress, date, filter);
       }
       setTasks(tasksList);
+      setIsSearching(false);
+      setSearchAddress("")
     } catch (error) {
       console.error("Error loading tasks:", error);
     }
@@ -152,6 +162,26 @@ function App() {
     }
   };
 
+  const handleSearchTasks = async () => {
+    if (!searchAddress.trim()) {
+      toast.error("Please enter an address!", { autoClose: 2000 });
+      return;
+    }
+
+    try {
+      const tasks = await fetchTasksByAddress(searchAddress);
+      setSearchedTasks(tasks);
+      setIsSearching(true);
+
+      if (tasks.length === 0) {
+        toast.info("No tasks found for this address", { autoClose: 2000 });
+      }
+    } catch (error) {
+      console.error("Error fetching tasks:", error);
+      toast.error("Failed to fetch tasks.");
+    }
+  };
+
   return (
     <div style={{ padding: "20px" }}>
 
@@ -175,7 +205,7 @@ function App() {
             <div
               style={{
                 display: "flex",
-                justifyContent: "end",
+                justifyContent: "space-between",
                 alignItems: "center",
                 marginBottom: "20px",
               }}
@@ -203,7 +233,54 @@ function App() {
                   }}
                 />
               </Box>
+              <Button variant="outlined" onClick={() => navigate("/users")} color="#193344"
+                sx={{ color: "#0f444d", fontWeight: "bold" }}>
+                View Users List
+              </Button>
             </div>
+            <div>
+              <Box sx={{ padding: "20px" }}>
+                <Typography variant="h6" sx={{ marginBottom: "20px", textAlign: "center", color: "#FDFAF6" }}>
+                  Search Tasks by Address
+                </Typography>
+
+                <Box sx={{ display: "flex", gap: 2, justifyContent: "center", marginBottom: "20px" }}>
+                  <TextField
+                    label="Enter Address"
+                    variant="outlined"
+                    value={searchAddress}
+                    onChange={(e) => setSearchAddress(e.target.value)}
+                    sx={{
+                      width: "400px",
+                      "& .MuiInputBase-input": { color: "#B4EBE6", padding: "8px 8px" },
+                      "& .MuiInputLabel-root": {
+                        color: "#099494",
+                        fontWeight: "bold",
+                      },
+                      "& .MuiOutlinedInput-root": {
+                        "& fieldset": { borderColor: "#099494" },
+                        "&:hover fieldset": { borderColor: "#066666" },
+                        "&.Mui-focused fieldset": { borderColor: "#0f444d" },
+                      },
+                    }}
+                  />
+                  <Button variant="outlined" onClick={handleSearchTasks} color="#193344"
+                    sx={{ color: "#0f444d", fontWeight: "bold" }}>
+                    Search
+                  </Button>
+                  {isSearching && (
+                    <Button variant="outlined" onClick={() => {
+                      setIsSearching(false);
+                      setSearchAddress("");
+                    }} color="#193344"
+                      sx={{ color: "#0f444d", fontWeight: "bold" }}>
+                      Clear Search
+                    </Button>
+                  )}
+                </Box>
+              </Box>
+            </div>
+
             <div>
               <Box
                 sx={{
@@ -359,88 +436,127 @@ function App() {
                 >
                   All Users' Tasks
                 </Button>
+
               </Box>
             </Box>
 
-            <div
+            <Box
               style={{
                 padding: "0 40px",
               }}
             >
-              <List>
-                {tasks.map((task, index) => (
-                  <ListItem
-                    key={index}
-                    variant="contained"
-                    sx={{
-                      borderBottom: "1px solid #00AF91",
+              {isSearching ? (
+                <List>
+                  {searchedTasks.map((task, index) => (
+                    <ListItem key={index} sx={{
+                      // borderBottom: "1px solid #00AF91",
                       padding: "0 8px",
                       display: "flex",
                       alignItems: "center",
                       justifyContent: "space-between",
-                    }}
-                  >
-                    <ListItemText
-                      primary={
-                        <Typography sx={{ fontSize: "14px", color: "#A6F6F1" }}>
-                          {index + 1}. {task.description}
-                        </Typography>
-                      }
-                      secondary={
-                        <Box>
-                          <Typography component="span" sx={{ fontSize: "10px", color: "#CEE397" }}>
-                            (By: {task.creator})
-                          </Typography>{" "}
-                          <Typography
-                            component="span"
-                            sx={{
-                              fontSize: "12px",
-                              color: task.userAddress === task.creator ? "#7579E7" : "#32E0C4",
-                            }}
-                          >
-                            (For: {task.userAddress})
-                          </Typography>
-                        </Box>
-                      }
-                    />
+                    }}>
+                      <ListItemText
+                        primary={<Typography variant="body1" sx={{ fontSize: "14px", color: "#A6F6F1" }}>{index + 1}.{task.description}</Typography>}
+                      />
+                      <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
+                        {task.status === 0 ? (
+                          <>
+                            <Typography color="error" fontSize="12px">
+                              Pending
+                            </Typography>
+                            <PendingIcon
+                              sx={{ color: "#7D0A0A", fontSize: "18px" }}
+                            />
+                            {task.creator === task.userAddress && (
+                              <Button
+                                variant="outlined"
+                                color="primary"
+                                onClick={() => handleUpdateTask(index)}
+                                endIcon={<AssignmentTurnedInIcon sx={{ fontSize: "18px" }} />}
+                                sx={{ fontSize: "12px" }}
+                              >
+                                Mark as Completed
+                              </Button>
+                            )}
 
-                    <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
-                      {task.status === 0 ? (
-                        <>
-                          <Typography color="error" fontSize="12px">
-                            Pending
+                          </>
+                        ) : (
+                          <>
+                            <Typography color="success" fontSize="12px">
+                              Completed
+                            </Typography>
+                            <CheckCircleIcon
+                              sx={{ color: "#388e3c", fontSize: "18px" }}
+                            />
+                          </>
+                        )}
+                      </Box>
+                    </ListItem>
+                  ))}
+                </List>
+              ) : (
+                <List>
+                  {tasks.map((task, index) => (
+                    <ListItem
+                      key={index}
+                      variant="contained"
+                      sx={{
+                        // borderBottom: "1px solid #00AF91",
+                        padding: "0 8px",
+                        display: "flex",
+                        alignItems: "center",
+                        justifyContent: "space-between",
+                      }}
+                    >
+                      <ListItemText
+                        primary={<Typography variant="body1" sx={{ fontSize: "14px", color: "#A6F6F1" }}>{index + 1}.{task.description}</Typography>}
+                        secondary={
+                          <Typography variant="body2" component="span">
+                            <Box component="span" sx={{ fontSize: "10px", color: "#CEE397" }}>(By: {task.creator})</Box>
+                            <Box component="span" sx={{
+                              fontSize: "12px", color: task.userAddress === task.creator ? "#7579E7" : "#32E0C4",
+                            }}> (For: {task.userAddress})</Box>
                           </Typography>
-                          <PendingIcon
-                            sx={{ color: "#7D0A0A", fontSize: "18px" }}
-                          />
-                          {task.creator === task.userAddress && (
-                            <Button
-                              variant="outlined"
-                              color="primary"
-                              onClick={() => handleUpdateTask(index)}
-                              endIcon={<AssignmentTurnedInIcon sx={{ fontSize: "18px" }} />}
-                              sx={{ fontSize: "12px" }}
-                            >
-                              Mark as Completed
-                            </Button>
-                          )}
+                        }
+                      />
+                      <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
+                        {task.status === 0 ? (
+                          <>
+                            <Typography color="error" fontSize="12px">
+                              Pending
+                            </Typography>
+                            <PendingIcon
+                              sx={{ color: "#7D0A0A", fontSize: "18px" }}
+                            />
+                            {task.creator === task.userAddress && (
+                              <Button
+                                variant="outlined"
+                                color="primary"
+                                onClick={() => handleUpdateTask(index)}
+                                endIcon={<AssignmentTurnedInIcon sx={{ fontSize: "18px" }} />}
+                                sx={{ fontSize: "12px" }}
+                              >
+                                Mark as Completed
+                              </Button>
+                            )}
 
-                        </>
-                      ) : (
-                        <>
-                          <Typography color="success" fontSize="12px">
-                            Completed
-                          </Typography>
-                          <CheckCircleIcon
-                            sx={{ color: "#388e3c", fontSize: "18px" }}
-                          />
-                        </>
-                      )}
-                    </Box>
-                  </ListItem>
-                ))}
-              </List>
-            </div>
+                          </>
+                        ) : (
+                          <>
+                            <Typography color="success" fontSize="12px">
+                              Completed
+                            </Typography>
+                            <CheckCircleIcon
+                              sx={{ color: "#388e3c", fontSize: "18px" }}
+                            />
+                          </>
+                        )}
+                      </Box>
+                    </ListItem>
+                  ))}
+                </List>
+              )}
+            </Box>
           </>
         ) : (
           <p>Please connect to the Sepolia Testnet.</p>
@@ -468,6 +584,18 @@ function App() {
         </div>
       )}
     </div>
+  );
+}
+
+
+function App() {
+  return (
+    <Router>
+      <Routes>
+        <Route path="/" element={<Home />} />
+        <Route path="/users" element={<UsersList />} />
+      </Routes>
+    </Router>
   );
 }
 

@@ -6,4 +6,7 @@
 // export const TaskContractAddress = "0xe988a15B54B8bE659f7E250c689Ed4e60410B54A"
 // export const TaskContractAddress = "0x7D28eAF8c506a40db55F8761167630d38394FbE2"
 // export const TaskContractAddress = "0xD4B27175a176f311F4C76cf7552defc42eD224c0"
-export const TaskContractAddress = "0x478F51C94FD546095e559f89fA508780E7236b00"
+// export const TaskContractAddress = "0x478F51C94FD546095e559f89fA508780E7236b00"
+// export const TaskContractAddress = "0x2251969dB517feeDFBF4ecE85b844389F1191F97"
+// export const TaskContractAddress = "0x45161B96fd560485080d91536131956298bcCAf7"
+export const TaskContractAddress = "0x8Cdcb4e4BE543DdBE39a06eD8cCBe219B30Ab98E"

@@ -15,9 +15,16 @@ contract TaskContract {
         address assignedTo;
     }
 
+    // Mapping: User -> List of tasks (ignoring dates)
+    mapping(address => Task[]) private userTasks;
+
     // Mapping of users to their tasks by date
     // Mapping: User -> Date -> List of tasks
     mapping(address => mapping(uint => Task[])) private userTasksByDate;
+
+    // List of users who have tasks
+    address[] public userList;
+    mapping(address => bool) public isUserTracked;
 
     event TaskCreated(
         address indexed assignedTo,
@@ -31,10 +38,6 @@ contract TaskContract {
         TaskStatus status,
         uint date
     );
-
-    // List of users who have tasks
-    address[] public userList;
-    mapping(address => bool) public isUserTracked;
 
     // Function to add a new user to userList
     function addUser(address _user) internal {
@@ -71,6 +74,7 @@ contract TaskContract {
         uint _date
     ) public {
         addUser(_user);
+
         Task memory newTask = Task({
             description: _description,
             status: TaskStatus.Pending,
@@ -79,6 +83,8 @@ contract TaskContract {
         });
 
         userTasksByDate[_user][_date].push(newTask);
+        // ✅ Store task directly under the user
+        userTasks[_user].push(newTask);
 
         emit TaskCreated(_user, _description, msg.sender, _date);
     }
@@ -98,6 +104,8 @@ contract TaskContract {
         });
 
         userTasksByDate[_user][_date].push(newTask);
+        // ✅ Store task directly under the user
+        userTasks[_user].push(newTask);
         addUser(_user);
 
         emit TaskCreated(_user, _description, msg.sender, _date);
@@ -121,7 +129,7 @@ contract TaskContract {
         Task[] memory tasks = userTasksByDate[_user][_date];
 
         for (uint i = 0; i < tasks.length; i++) {
-            tasks[i].assignedTo = _user; // ✅ Store assignedTo field
+            tasks[i].assignedTo = _user;
         }
 
         return tasks;
@@ -206,5 +214,15 @@ contract TaskContract {
         }
 
         return filteredTasks;
+    }
+
+    function getUserList() public view returns (address[] memory) {
+        return userList;
+    }
+
+    function getTasksByAddress(
+        address _user
+    ) public view returns (Task[] memory) {
+        return userTasks[_user];
     }
 }

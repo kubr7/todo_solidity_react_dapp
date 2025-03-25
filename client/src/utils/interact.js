@@ -106,7 +106,6 @@ export const updateTask = async (index, status, selectedDate) => {
     }
 };
 
-
 // Fetch tasks based on status (Pending, Completed, All)
 export const getTasksByStatus = async (userAddress, selectedDate, status) => {
     if (!contract) await initContract();
@@ -155,3 +154,31 @@ export const getAllTasksForDate = async (selectedDate) => {
     }
 };
 
+export const fetchUsersFromContract = async () => {
+    if (!contract) await initContract();
+
+    try {
+        const allUsers = await contract.getUserList()
+        return allUsers;
+    } catch (error) {
+        console.error("Error fetching users:", error);
+        return [];
+    }
+};
+
+
+export const fetchTasksByAddress = async (userAddress) => {
+    if (!contract) await initContract();
+
+    try {
+        if (!userAddress) {
+            throw new Error("User address is required");
+        }
+
+        const usersTasks = await contract.getTasksByAddress(userAddress);
+        return usersTasks;
+    } catch (error) {
+        console.error("Error fetching tasks:", error);
+        return [];
+    }
+};

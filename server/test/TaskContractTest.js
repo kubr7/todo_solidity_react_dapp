@@ -60,6 +60,7 @@ describe("TaskContract", function () {
         ).to.be.revertedWith("Invalid user address");
     });
 
+
     it("Should update a task status by date", async function () {
         await contract.createTask(owner.address, "Test Task", todayDate);
         await contract.updateTask(0, 1, todayDate);
@@ -77,6 +78,7 @@ describe("TaskContract", function () {
             contract.connect(addr1).updateTask(0, 1, todayDate)
         ).to.be.revertedWith("You can only update your own tasks");
     });
+
 
     it("Should retrieve only pending tasks for a user and date", async function () {
         await contract.createTask(owner.address, "Task 1", todayDate);
@@ -110,4 +112,21 @@ describe("TaskContract", function () {
         expect(tomorrowTasks.length).to.equal(1);
         expect(tomorrowTasks[0].description).to.equal("Tomorrow's Task");
     });
+
+    it("Should fetch tasks assigned to a specific address", async function () {
+        // Create multiple tasks assigned to `addr1`
+        await contract.createTask(addr1.address, "Task A", todayDate);
+        await contract.createTask(addr1.address, "Task B", todayDate);
+
+        // Fetch tasks by address
+        const tasks = await contract.getTasksByAddress(addr1.address);
+
+        // Assertions
+        expect(tasks.length).to.equal(2);
+        expect(tasks[0].description).to.equal("Task A");
+        expect(tasks[1].description).to.equal("Task B");
+        expect(tasks[0].assignedTo).to.equal(addr1.address);
+        expect(tasks[1].assignedTo).to.equal(addr1.address);
+    });
+
 });
