@@ -79,11 +79,12 @@ contract TaskContract {
             description: _description,
             status: TaskStatus.Pending,
             creator: msg.sender,
-            assignedTo: _user // ✅ Store assigned user's address
+            assignedTo: _user
         });
 
         userTasksByDate[_user][_date].push(newTask);
-        // ✅ Store task directly under the user
+
+        // Store task directly under the user
         userTasks[_user].push(newTask);
 
         emit TaskCreated(_user, _description, msg.sender, _date);
@@ -100,11 +101,12 @@ contract TaskContract {
             description: _description,
             status: TaskStatus.Pending,
             creator: msg.sender,
-            assignedTo: _user // ✅ Store assigned user's address
+            assignedTo: _user
         });
 
         userTasksByDate[_user][_date].push(newTask);
-        // ✅ Store task directly under the user
+
+        // Store task directly under the user
         userTasks[_user].push(newTask);
         addUser(_user);
 
@@ -112,7 +114,6 @@ contract TaskContract {
     }
 
     // Function to update task status (Only assigned user can update)
-    // Function to update a task status
     function updateTask(
         uint _taskIndex,
         TaskStatus _status,
@@ -135,7 +136,6 @@ contract TaskContract {
         return tasks;
     }
 
-    // Get all tasks for a user on a specific date
     // Function to get all tasks for all users on a specific date
     function getAllTasksForDate(
         uint _date
@@ -162,7 +162,7 @@ contract TaskContract {
                     description: task.description,
                     status: task.status,
                     creator: task.creator,
-                    assignedTo: user // ✅ Set assignedTo field
+                    assignedTo: user
                 });
                 index++;
             }

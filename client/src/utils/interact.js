@@ -136,6 +136,8 @@ export const getTasksByStatus = async (userAddress, selectedDate, status) => {
     }
 };
 
+
+// Fetch tasks by Date
 export const getAllTasksForDate = async (selectedDate) => {
     if (!contract) await initContract();
 
@@ -154,6 +156,7 @@ export const getAllTasksForDate = async (selectedDate) => {
     }
 };
 
+// Fetch all Users 
 export const fetchUsersFromContract = async () => {
     if (!contract) await initContract();
 
@@ -166,7 +169,7 @@ export const fetchUsersFromContract = async () => {
     }
 };
 
-
+// Fetch Tasks by User Address
 export const fetchTasksByAddress = async (userAddress) => {
     if (!contract) await initContract();
 

@@ -184,7 +184,6 @@ function Home() {
 
   return (
     <div style={{ padding: "20px" }}>
-
       {currentAccount ? (
         correctNetwork ? (
           <>
@@ -243,7 +242,6 @@ function Home() {
                 <Typography variant="h6" sx={{ marginBottom: "20px", textAlign: "center", color: "#FDFAF6" }}>
                   Search Tasks by Address
                 </Typography>
-
                 <Box sx={{ display: "flex", gap: 2, justifyContent: "center", marginBottom: "20px" }}>
                   <TextField
                     label="Enter Address"
@@ -280,7 +278,6 @@ function Home() {
                 </Box>
               </Box>
             </div>
-
             <div>
               <Box
                 sx={{
@@ -313,8 +310,6 @@ function Home() {
                     Task for Other
                   </Button>
                 </Box>
-
-                {/* Task for Self */}
                 {taskType === "self" && (
                   <Box sx={{ display: "flex", flexDirection: "row", alignItems: "center", gap: "10px" }}>
                     <TextField
@@ -339,8 +334,6 @@ function Home() {
                     </Button>
                   </Box>
                 )}
-
-                {/* Task for Other */}
                 {taskType === "other" && (
                   <Box sx={{ display: "flex", flexDirection: "row", alignItems: "center", gap: "10px" }}>
                     <TextField
@@ -436,10 +429,8 @@ function Home() {
                 >
                   All Users' Tasks
                 </Button>
-
               </Box>
             </Box>
-
             <Box
               style={{
                 padding: "0 40px",
@@ -449,7 +440,6 @@ function Home() {
                 <List>
                   {searchedTasks.map((task, index) => (
                     <ListItem key={index} sx={{
-                      // borderBottom: "1px solid #00AF91",
                       padding: "0 8px",
                       display: "flex",
                       alignItems: "center",
@@ -501,7 +491,6 @@ function Home() {
                       key={index}
                       variant="contained"
                       sx={{
-                        // borderBottom: "1px solid #00AF91",
                         padding: "0 8px",
                         display: "flex",
                         alignItems: "center",
@@ -587,7 +576,6 @@ function Home() {
   );
 }
 
-
 function App() {
   return (
     <Router>
@@ -639,7 +627,7 @@ function formatDisplayDate(dateStr) {
   const options = { weekday: "long" };
   const dayName = new Intl.DateTimeFormat("en-US", options).format(date);
 
-  return `${dayName}, ${day}-${month}-${year}`; // Example: "Monday, 26-08-2024"
+  return `${dayName}, ${day}-${month}-${year}`;
 }
 
 export default App;

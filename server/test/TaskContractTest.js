@@ -27,7 +27,7 @@ describe("TaskContract", function () {
 
     it("Should create a task with a specific date", async function () {
         await contract.createTask(owner.address, "Test Task", todayDate);
-        const tasks = await contract.getAllTasks(owner.address, todayDate); // ✅ Fetch for specific user
+        const tasks = await contract.getAllTasks(owner.address, todayDate);
         expect(tasks.length).to.equal(1);
         expect(tasks[0].description).to.equal("Test Task");
     });
@@ -37,9 +37,9 @@ describe("TaskContract", function () {
         await contract.createTask(owner.address, "Task 2", todayDate);
 
         const allTasks = await contract.getAllTasksForDate(todayDate);
-        console.log("All tasks retrieved for date:", allTasks);  // ✅ Debugging log
+        console.log("All tasks retrieved for date:", allTasks);
 
-        expect(allTasks.length).to.equal(2);  // Should be 2
+        expect(allTasks.length).to.equal(2);
     });
 
 
@@ -85,7 +85,7 @@ describe("TaskContract", function () {
         await contract.createTask(owner.address, "Task 2", todayDate);
         await contract.updateTask(0, 1, todayDate);
 
-        const pendingTasks = await contract.getPendingTasks(owner.address, todayDate); // ✅ Fix: Pass both user & date
+        const pendingTasks = await contract.getPendingTasks(owner.address, todayDate);
         expect(pendingTasks.length).to.equal(1);
         expect(pendingTasks[0].description).to.equal("Task 2");
     });
@@ -95,7 +95,7 @@ describe("TaskContract", function () {
         await contract.createTask(owner.address, "Task 2", todayDate);
         await contract.updateTask(0, 1, todayDate);
 
-        const completedTasks = await contract.getCompletedTasks(owner.address, todayDate); // ✅ Fix: Pass both user & date
+        const completedTasks = await contract.getCompletedTasks(owner.address, todayDate);
         expect(completedTasks.length).to.equal(1);
         expect(completedTasks[0].description).to.equal("Task 1");
     });
