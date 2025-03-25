@@ -2,7 +2,7 @@
 import { useState, useEffect } from 'react';
 import { fetchUsersFromContract } from '../utils/interact';
 import { Button, List, ListItem, ListItemText, Typography } from '@mui/material';
-import { useNavigate } from "react-router-dom";
+import { useNavigate, Link } from "react-router-dom";
 
 const UsersList = () => {
     const [users, setUsers] = useState([]);
@@ -21,7 +21,9 @@ const UsersList = () => {
         <>
             <div style={{ display: "flex", alignItems: "center", justifyContent: "space-around" }}>
                 <div style={{ display: "flex", alignItems: "center", justifyContent: "start" }} >
-                    <img src="/logo.png" alt="Logo" width={80} height={80} />
+                    <Link to="/" style={{ textDecoration: "none", display: "flex", alignItems: "center" }}>
+                        <img src="/logo.png" alt="Logo" width={80} height={80} />
+                    </Link>
                     <Typography
                         variant="h5"
                         component="h1"

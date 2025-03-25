@@ -1,7 +1,7 @@
 // src/app.js
 
 import React, { useState, useEffect } from "react";
-import { BrowserRouter as Router, Routes, Route, useNavigate } from "react-router-dom";
+import { BrowserRouter as Router, Routes, Route, useNavigate, Link } from "react-router-dom";
 import {
   TextField,
   Button,
@@ -198,7 +198,9 @@ function Home() {
             <Box
               sx={{ display: "flex", alignItems: "center", justifyContent: "start" }}
             >
-              <img src="/logo.png" alt="Logo" width={80} height={80} />
+              <Link to="/" style={{ textDecoration: "none", display: "flex", alignItems: "center" }}>
+                <img src="/logo.png" alt="Logo" width={80} height={80} />
+              </Link>
               <Typography
                 variant="h5"
                 component="h1"
