@@ -46,7 +46,7 @@ export const connectWallet = async () => {
     }
 };
 
-// Create a new task for the user.
+// Create a new task for self
 export const createTask = async (userAddress, description, selectedDate) => {
     if (!contract) await initContract();
 
@@ -61,7 +61,7 @@ export const createTask = async (userAddress, description, selectedDate) => {
     }
 };
 
-
+// Create or Assign a new task for others
 export const createTaskForUser = async (targetUserAddress, description, selectedDate) => {
     if (!contract) await initContract();
 
@@ -179,7 +179,13 @@ export const fetchTasksByAddress = async (userAddress) => {
         }
 
         const usersTasks = await contract.getTasksByAddress(userAddress);
-        return usersTasks;
+        const tasks = usersTasks.map(task => ({
+            description: task.description,
+            status: Number(task.status),
+            creator: task.creator,
+            userAddress: task.userAddress
+        }));
+        return tasks;
     } catch (error) {
         console.error("Error fetching tasks:", error);
         return [];

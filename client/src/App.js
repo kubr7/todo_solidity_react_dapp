@@ -85,7 +85,8 @@ function Home() {
       const success = await createTask(currentAccount, input, selectedDate);
       if (success) {
         setInput("");
-        loadTasks(currentAccount, taskFilter, selectedDate);
+        setTaskFilter(null);
+        loadTasks(currentAccount, null, selectedDate);
         toast.success("Task has created!", {
           position: "top-center",
           autoClose: 3000,
@@ -119,7 +120,8 @@ function Home() {
     if (success) {
       setTargetTaskDescription("");
       setTargetUser("");
-      loadTasks(currentAccount, taskFilter, selectedDate);
+      setTaskFilter("allUsers");
+      loadTasks(currentAccount, "allUsers", selectedDate);
       toast.success(`Task has created for ${targetUser}`, {
         position: "top-center",
         autoClose: 3000,
@@ -170,10 +172,15 @@ function Home() {
 
     try {
       const tasks = await fetchTasksByAddress(searchAddress);
-      setSearchedTasks(tasks);
+      // Ensure unique tasks by filtering duplicates
+      const uniqueTasks = tasks.filter(
+        (task, index, self) =>
+          index === self.findIndex((t) => t.description === task.description && t.creator === task.creator)
+      );
+      setSearchedTasks(uniqueTasks);
       setIsSearching(true);
 
-      if (tasks.length === 0) {
+      if (uniqueTasks.length === 0) {
         toast.info("No tasks found for this address", { autoClose: 2000 });
       }
     } catch (error) {
@@ -424,8 +431,9 @@ function Home() {
                 </Button>
                 <Button
                   variant="text"
-                  endIcon={<AssignmentIcon />}
+                  endIcon={<AssignmentIcon sx={{ color: "#3D8D7A" }} />}
                   onClick={() => setTaskFilter("allUsers")}
+                  sx={{ margin: "5px", color: "#FFCF50" }}
                 >
                   All Users' Tasks
                 </Button>
@@ -468,7 +476,6 @@ function Home() {
                                 Mark as Completed
                               </Button>
                             )}
-
                           </>
                         ) : (
                           <>

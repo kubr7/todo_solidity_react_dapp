@@ -148,7 +148,6 @@ contract TaskContract {
             address user = userList[i];
             totalTasks += userTasksByDate[user][_date].length;
         }
-        // console.log("Total tasks found:", totalTasks);
 
         Task[] memory allTasks = new Task[](totalTasks);
         uint index = 0;
